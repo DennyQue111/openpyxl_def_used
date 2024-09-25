@@ -1,0 +1,15 @@
+import openpyxl
+from openpyxl.drawing.image import Image
+
+def delete_all_pictures(excel_path):
+    # Load the workbook and select the active worksheet
+    wb = openpyxl.load_workbook(excel_path)
+    ws = wb.active
+
+    # Iterate over all the images in the worksheet and delete them
+    for img in ws._images:
+        ws.remove(img)
+
+    # Save the workbook after removing images
+    wb.save(excel_path)
+    print("All pictures have been deleted.")
