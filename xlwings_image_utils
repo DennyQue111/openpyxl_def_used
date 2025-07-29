@@ -1,0 +1,66 @@
+import xlwings as xw
+
+
+def adjust_images_to_cells(file_path):
+    app = xw.App(visible=False)
+    wb = app.books.open(file_path)
+    sheet = wb.sheets['金装圣装系列金装图']
+
+    for shape in sheet.shapes:
+        if shape.type == 'linked_picture':  # 根据实际类型调整
+            try:
+                # 获取原始尺寸并跳过零值
+                orig_height = shape.height
+                orig_width = shape.width
+                if orig_height == 0 or orig_width == 0:
+                    continue
+
+                # 通过API获取锚定单元格
+                top_left_cell = shape.api.TopLeftCell
+                cell = sheet.range((top_left_cell.Row, top_left_cell.Column))
+
+                # 设置列的宽度（单位：字符宽度）
+                sheet.range((cell.row, cell.column)).column_width = 200  # 例如设置为20字符宽
+
+                # 或者通过列字母设置
+                sheet.range('A:A').column_width = 250
+
+                # 设置行的高度（单位：磅）
+                sheet.range((cell.row, cell.column)).row_height = 300  # 例如设置为30磅高
+
+                # 或者通过行号设置
+                sheet.range('1:1').row_height = 350
+
+                # 获取单元格有效尺寸
+                cell_width = cell.width
+                cell_height = cell.height
+                if cell_height <= 0 or cell_width <= 0:
+                    continue
+
+                # 计算适应尺寸
+                aspect_ratio = orig_width / orig_height
+                cell_ratio = cell_width / cell_height
+
+                if cell_ratio > aspect_ratio:
+                    new_height = cell_height
+                    new_width = cell_height * aspect_ratio
+                else:
+                    new_width = cell_width
+                    new_height = cell_width / aspect_ratio
+
+                # 调整图片
+                shape.lock_aspect_ratio = True
+                shape.width = new_width
+                shape.height = new_height
+                shape.top = cell.top
+                shape.left = cell.left
+
+            except Exception as e:
+                print(f"处理图片失败: {str(e)}")
+                continue
+
+    wb.save()
+    wb.close()
+    app.quit()
+
+adjust_images_to_cells(r"E:\Pubgm\excel_update\250401_version_update\BI - 商业化环节流程和分工.xlsx")
