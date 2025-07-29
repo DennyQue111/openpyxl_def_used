@@ -62,5 +62,3 @@ def adjust_images_to_cells(file_path):
     wb.save()
     wb.close()
     app.quit()
-
-adjust_images_to_cells(r"E:\Pubgm\excel_update\250401_version_update\BI - 商业化环节流程和分工.xlsx")
